@@ -1,26 +1,56 @@
 #include<iostream>
 #include<string>
+#include<fstream>
 #include"launch.h"
+#include"json/json.h"
+#include"download.h"
 using namespace std;
-class LaunchOption
-{
-    public:
-    string GameDir;
-    string versionName;
-    string defaultJVMArgs=" -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignorePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump";
-    int maxMemory;
-    int minMemory;
-    LaunchOption()
-    {
-        this->maxMemory=1024;
-        this->minMemory=512;
-    }
-};
-void Launch(LaunchOption option)
+
+void launchGame(launchOption option,Account account)
 {
     string launchCommand="";
     launchCommand+="java";
     launchCommand+=option.defaultJVMArgs;
     launchCommand+=" -Xmx"+to_string(option.maxMemory)+"M";
     launchCommand+=" -Xms"+to_string(option.minMemory)+"M";
+    launchCommand+=" -Djava.library.path="+option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+"-natives";
+    string libraryPath=" ";
+    Json::Value root;
+    string versionJSONPath=option.GameDir+"/versions/"+option.versionName+"/"+option.version+".json";
+    Json::CharReaderBuilder builder;
+    JSONCPP_STRING errs;
+    ifstream versionJSONFile;
+    versionJSONFile.open(versionJSONPath);
+    bool parse_ok=Json::parseFromStream(builder,versionJSONFile,&root,&errs);
+    if(!parse_ok)
+    {
+        cout<<"Open version json file failed!"<<endl;
+    }
+    versionJSONFile.close();
+    Json::Value libraries=root["libraries"];
+    for(Json::Value::iterator it=libraries.begin();it!=libraries.end();it++)
+    {
+        if((*it)["downloads"]["artifact"]["path"].asString()!="")
+        {
+            libraryPath+=option.GameDir+"/libraries/"+(*it)["downloads"]["artifact"]["path"].asString()+";";
+        }
+    }
+    libraryPath+=option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+".jar";
+    launchCommand+=libraryPath;
+    launchCommand+=" "+root["mainClass"].asString();
+    launchCommand+=" --username "+account.userName;
+    launchCommand+=" --version "+option.version;
+    launchCommand+=" --gameDir "+option.GameDir;
+    launchCommand+=" --assetsDir "+option.GameDir+"/assets";
+    launchCommand+=" --assetIndex "+root["assetIndex"]["id"].asString();
+    launchCommand+=" --uuid "+root["id"].asString();
+    launchCommand+=" --accessToken "+root["id"].asString();
+    launchCommand+=" --userType "+account.userType;
+    launchCommand+=" --uuid "+account.uuid;
+    launchCommand+=" --accessToken "+account.accessToken;
+    launchCommand+=" --versionType "+option.versionType;
+    launchCommand+=" --height"+option.height;
+    launchCommand+=" --width"+option.width;
+    
+    cout<<launchCommand<<endl;
 }

@@ -23,12 +23,13 @@ JavaBinPath getByJREPath()
 		{
 			string JavaBinPath="C:/Program Files/Java/"+(string)file.name+"/bin";
 			javaBinPath.path[javaBinPath.count]=JavaBinPath;
+			javaBinPath.count++;
 		}
 		_findclose(fileHandle);	
 		return javaBinPath;
 	}
 }
-JavaBinPath getByJREPath()
+JavaBinPath getByJDKPath()
 {
 	if(!_access("C:/Program Files/Java",0)==0)
 	{
@@ -48,6 +49,7 @@ JavaBinPath getByJREPath()
 		{
 			string JavaBinPath="C:/Program Files/Java/"+(string)file.name+"/bin";
 			javaBinPath.path[javaBinPath.count]=JavaBinPath;
+			javaBinPath.count++;
 		}
 		_findclose(fileHandle);	
 		return javaBinPath;

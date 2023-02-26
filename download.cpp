@@ -7,11 +7,21 @@
 #include<direct.h>
 #include"json/json.h"
 #include"download.h"
+#include"system.h"
 #pragma comment(lib,"urlmon.lib")
 using namespace std;
-
 int downloadVersion(downloadOption option)
 {
+    JavaBinPath javaBinPath;
+    javaBinPath=getByJREPath();
+    if(javaBinPath.count==0)
+        javaBinPath=getByJDKPath();
+    if(javaBinPath.count==0)
+    {
+        cout<<"Your computer didn't install Java."<<endl;
+        return 0;
+    }
+    string javaBinPathStr=javaBinPath.path[0];
     string manifestURL="https://piston-meta.mojang.com/mc/game/version_manifest.json";
     string manifestPath=option.GameDir+"/version_manifest.json";
     download(manifestURL,manifestPath);
@@ -40,7 +50,7 @@ int downloadVersion(downloadOption option)
                 _mkdir((option.GameDir+"/versions").c_str());
             if(_access((option.GameDir+"/versions/"+option.versionName).c_str(),0)==-1)
                 _mkdir((option.GameDir+"/versions/"+option.versionName).c_str());
-            versionPath=option.GameDir+"/versions/"+option.versionName+"\\"+option.version+".json";
+            versionPath=option.GameDir+"/versions/"+option.versionName+"/"+option.version+".json";
             download(versionURL,versionPath);
             found=true;
             break;
@@ -82,6 +92,13 @@ int downloadVersion(downloadOption option)
             string libraryNativesURL=(*it)["downloads"]["classifiers"]["natives-windows"]["url"].asString();
             string libraryNativesPath=option.GameDir+"/libraries/"+(*it)["downloads"]["classifiers"]["natives-windows"]["path"].asString();
             download(libraryNativesURL,libraryNativesPath);
+            string libraryNativesPath2=option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+"-natives";
+            download(libraryNativesURL,libraryNativesPath2);
+            string cmd=javaBinPathStr+"/jar xf "+libraryNativesPath2;
+            system(cmd.c_str());
+            string removeJar;
+            removeJar="del "+libraryNativesPath2;
+            system(removeJar.c_str());
         }
     }
 
@@ -136,10 +153,12 @@ int download(string URL,string path)
     }
     if(_access(dir.c_str(),0)==-1)
     {
-        mkdir(dir.c_str());
+        string mkdircmd="mkdir "+dir;
+        cout<<mkdircmd<<endl;
+        system(mkdircmd.c_str());
     }
     HRESULT result;
-    URLDownloadToFileW(NULL, stringToLPCWSTR(URL),stringToLPCWSTR(path),0,NULL);
+    result=URLDownloadToFileW(NULL, stringToLPCWSTR(URL),stringToLPCWSTR(path),0,NULL);
     if(result==S_OK)
         return 0;
     else
@@ -155,4 +174,37 @@ int download(string URL,string path)
         }
     }
 }
+
+//创建多级目录
+int CreateDirectorys(char *sPathName)
+{
+    char DirName[256];
+    strcpy(DirName, sPathName);
+    int i, len = strlen(DirName);
+    if (DirName[len - 1] != '/')
+        strcat(DirName, "/");
+    len = strlen(DirName);
+    for (i = 1; i < len; i++)
+    {
+        if (DirName[i] == '/')
+        {
+            DirName[i] = 0;
+            if (access(DirName, NULL) != 0)
+            {
+                if (mkdir(DirName) == -1)
+                {
+                    printf("mkdir error!n");
+                    return -1;
+                }
+            }
+            DirName[i] = '/';
+        }
+    }
+    return 0;
+}//为什么这个函数会报错呢？
+//因为这个函数是在windows下的，linux下没有这个函数，所以要自己写一个
+//这个函数是用来创建多级目录的，比如我要创建一个文件夹a/b/c/d/e/f，那么我只需要调用这个函数，传入a/b/c/d/e/f就可以了
+//为什么我要写真么多注释呢
+
+
 
