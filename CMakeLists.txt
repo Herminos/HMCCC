@@ -2,4 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(HMCCC)
 
-add_executable(ConsoleLauncher main.cpp jsoncpp.cpp download.cpp launch.cpp system.cpp)
+aux_source_directory(./src DIR_SRCS)
+
+include_directories(./include)
+
+add_executable(ConsoleLauncher ${DIR_SRCS})

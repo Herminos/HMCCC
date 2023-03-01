@@ -6,8 +6,8 @@
 #include<stdio.h>
 #include<direct.h>
 #include"json/json.h"
-#include"download.h"
-#include"system.h"
+#include"headers/download.h"
+#include"headers/system.h"
 #pragma comment(lib,"urlmon.lib")
 using namespace std;
 int downloadVersion(downloadOption option)
