@@ -1,6 +1,6 @@
 #include<iostream>
 #include<io.h>
-#include"headers/system.h"
+#include"../headers/system.h"
 using namespace std;
 
 JavaBinPath getByJREPath()

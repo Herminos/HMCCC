@@ -1,7 +1,7 @@
-#include"json/json.h"
-#include"headers/download.h"
-#include"headers/system.h"
-#include"headers/launch.h"
+#include"../headers/download.h"
+#include"../headers/download.h"
+#include"../headers/system.h"
+#include"../headers/launch.h"
 #include<iostream>
 #include<fstream>
 #include<io.h>

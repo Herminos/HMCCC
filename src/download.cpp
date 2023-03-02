@@ -4,10 +4,11 @@
 #include<fstream>
 #include<io.h>
 #include<stdio.h>
+#include<list>
 #include<direct.h>
-#include"json/json.h"
-#include"headers/download.h"
-#include"headers/system.h"
+#include"../headers/json/json.h"
+#include"../headers/download.h"
+#include"../headers/system.h"
 #pragma comment(lib,"urlmon.lib")
 using namespace std;
 int downloadVersion(downloadOption option)
@@ -153,9 +154,7 @@ int download(string URL,string path)
     }
     if(_access(dir.c_str(),0)==-1)
     {
-        string mkdircmd="mkdir "+dir;
-        cout<<mkdircmd<<endl;
-        system(mkdircmd.c_str());
+        mkMultiDir(dir);
     }
     HRESULT result;
     result=URLDownloadToFileW(NULL, stringToLPCWSTR(URL),stringToLPCWSTR(path),0,NULL);
@@ -174,33 +173,35 @@ int download(string URL,string path)
         }
     }
 }
-
-//创建多级目录
-int CreateDirectorys(char *sPathName)
+string GetPathDir(string filePath)
 {
-    char DirName[256];
-    strcpy(DirName, sPathName);
-    int i, len = strlen(DirName);
-    if (DirName[len - 1] != '/')
-        strcat(DirName, "/");
-    len = strlen(DirName);
-    for (i = 1; i < len; i++)
+    string dirPath = filePath;
+    size_t p = filePath.find_last_of('/');
+    if (p != -1)
     {
-        if (DirName[i] == '/')
-        {
-            DirName[i] = 0;
-            if (access(DirName, NULL) != 0)
-            {
-                if (mkdir(DirName) == -1)
-                {
-                    printf("mkdir error!n");
-                    return -1;
-                }
-            }
-            DirName[i] = '/';
-        }
+        dirPath.erase(p);
     }
-    return 0;
+    return dirPath;
 }
+void mkMultiDir(string dir)
+{
+    if (_access(dir.c_str(), 00) == 0)
+        return;
 
+    list <string> dirList;
+    dirList.push_front(dir);
 
+    string curDir=GetPathDir(dir);
+    while (curDir!=dir)
+    {
+        if (_access(curDir.c_str(), 00) == 0)
+            break;
+        dirList.push_front(curDir);
+        dir=curDir;
+        curDir=GetPathDir(dir);
+    }
+    for (auto it:dirList)
+    {       
+        _mkdir(it.c_str());
+    }
+}

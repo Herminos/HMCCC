@@ -26,3 +26,5 @@ class downloadOption
 int downloadVersion(downloadOption option);
 
 int download(string URL, string path);
+
+void mkMultiDir(string dir);

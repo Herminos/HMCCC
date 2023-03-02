@@ -1,9 +1,9 @@
 #include<iostream>
 #include<string>
 #include<fstream>
-#include"launch.h"
-#include"json/json.h"
-#include"download.h"
+#include"../headers/launch.h"
+#include"../headers/json/json.h"
+#include"../headers/download.h"
 using namespace std;
 
 void launchGame(launchOption option,Account account)
