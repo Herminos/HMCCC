@@ -9,7 +9,7 @@ using namespace std;
 int main()
 {
     downloadOption option;
-    option.GameDir="./.minecraft";
+    option.GameDir="C:/Users/hermi/Desktop/HMCCC/demo";
     option.version="1.12.2";
     option.versionName="Demo";
     downloadVersion(option);
