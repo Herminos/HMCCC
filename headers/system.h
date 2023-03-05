@@ -12,3 +12,6 @@ JavaBinPath getByJREPath();
 
 JavaBinPath getByJDKPath();
 
+string GetCurDir();
+
+int EnterDir(string dir);

@@ -1,5 +1,8 @@
 #include<iostream>
 #include<io.h>
+#include<direct.h>
+#include<windows.h>
+#include<stdio.h>
 #include"../headers/system.h"
 using namespace std;
 
@@ -53,5 +56,26 @@ JavaBinPath getByJDKPath()
 		}
 		_findclose(fileHandle);	
 		return javaBinPath;
+	}
+}
+string GetCurDir()
+{
+	char buffer[MAX_PATH];
+    DWORD size = GetCurrentDirectoryA(sizeof(buffer), buffer);
+    if(size==0)
+	{
+        return "C:/";
+    }
+    return buffer;
+}
+int EnterDir(string dir)
+{
+	if(_chdir(dir.c_str())==0)
+	{
+		return -1;
+	}
+	else
+	{
+		return 0;
 	}
 }
