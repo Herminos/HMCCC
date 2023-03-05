@@ -13,6 +13,11 @@
 using namespace std;
 int downloadVersion(downloadOption option)
 {
+    if(_access(option.GameDir.c_str(),0)==-1)
+    {
+        cout<<"Game directory not found, make a new one."<<endl;
+        _mkdir(option.GameDir.c_str());
+    }
     JavaBinPath javaBinPath;
     javaBinPath=getByJREPath();
     if(javaBinPath.count==0)
@@ -93,16 +98,26 @@ int downloadVersion(downloadOption option)
             string libraryNativesURL=(*it)["downloads"]["classifiers"]["natives-windows"]["url"].asString();
             string libraryNativesPath=option.GameDir+"/libraries/"+(*it)["downloads"]["classifiers"]["natives-windows"]["path"].asString();
             download(libraryNativesURL,libraryNativesPath);
-            string libraryNativesPath2=option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+"-natives";
+
+            string libraryNativesPath2=option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+"-natives/"+"tmpfile.jar";
             download(libraryNativesURL,libraryNativesPath2);
-            string cmd=javaBinPathStr+"/jar xf "+libraryNativesPath2;
+            string curDir=GetCurDir();
+
+            EnterDir(option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+"-natives/");
+            string cmd="\""+javaBinPathStr+"/jar.exe\" xvf "+libraryNativesPath2;
             system(cmd.c_str());
+
             string removeJar;
             removeJar="del "+libraryNativesPath2;
             system(removeJar.c_str());
+
+            string removeMETA;
+            removeMETA="rmdir META-INF";
+            system(removeMETA.c_str());
+
+            EnterDir(curDir);
         }
     }
-
     if(_access((option.GameDir+"/assets").c_str(),0)==-1)
         _mkdir((option.GameDir+"/assets").c_str());
     if(_access((option.GameDir+"/assets/indexes").c_str(),0)==-1)
