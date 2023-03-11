@@ -7,3 +7,5 @@ aux_source_directory(./src DIR_SRCS)
 include_directories(./include)
 
 add_executable(ConsoleLauncher ${DIR_SRCS})
+
+add_library(hmccc ${DIR_SRCS})
