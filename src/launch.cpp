@@ -36,7 +36,7 @@ void launchGame(launchOption option,Account account)
         }
     }
     libraryPath+=option.GameDir+"/versions/"+option.versionName+"/"+option.versionName+".jar";
-    launchCommand+=libraryPath;
+    launchCommand+=" -cp "+libraryPath;
     launchCommand+=" "+root["mainClass"].asString();
     launchCommand+=" --username "+account.userName;
     launchCommand+=" --version "+option.version;
@@ -44,13 +44,12 @@ void launchGame(launchOption option,Account account)
     launchCommand+=" --assetsDir "+option.GameDir+"/assets";
     launchCommand+=" --assetIndex "+root["assetIndex"]["id"].asString();
     launchCommand+=" --uuid "+root["id"].asString();
-    launchCommand+=" --accessToken "+root["id"].asString();
-    launchCommand+=" --userType "+account.userType;
-    launchCommand+=" --uuid "+account.uuid;
     launchCommand+=" --accessToken "+account.accessToken;
+    launchCommand+=" --userType "+account.userType;
     launchCommand+=" --versionType "+option.versionType;
     launchCommand+=" --height"+option.height;
     launchCommand+=" --width"+option.width;
     
     cout<<launchCommand<<endl;
+    system(launchCommand.c_str());
 }
