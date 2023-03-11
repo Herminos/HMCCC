@@ -4,6 +4,7 @@
 #include"../headers/launch.h"
 #include"../headers/json/json.h"
 #include"../headers/download.h"
+#include"../headers/system.h"
 using namespace std;
 
 void launchGame(launchOption option,Account account)
@@ -51,5 +52,21 @@ void launchGame(launchOption option,Account account)
     launchCommand+=" --width"+option.width;
     
     cout<<launchCommand<<endl;
+    system(launchCommand.c_str());
+}
+
+void launchServer(launchServerOption option)
+{
+    string launchCommand="";
+    launchCommand+="java";
+    //launchCommand+=option.defaultJVMArgs;
+    launchCommand+=" -Xmx"+to_string(option.maxMemory)+"M";
+    launchCommand+=" -Xms"+to_string(option.minMemory)+"M";
+    launchCommand+=" -jar "+option.serverDir+"/"+option.serverName+"/"+option.version+".jar";
+    if(option.ifNoGui)
+        launchCommand+=" nogui";
+    cout<<launchCommand<<endl;
+    EnterDir(option.serverDir+"/"+option.serverName);
+    system("pause");
     system(launchCommand.c_str());
 }

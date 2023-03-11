@@ -22,9 +22,30 @@ class downloadOption
         this->versionName=versionName;
     }
 };
-
+class downloadServerOption
+{
+    public:
+    string version;
+    string serverDir;
+    string serverName;
+    
+    void setVersion(string version)
+    {
+        this->version=version;
+    }
+    void setServerDir(string serverDir)
+    {
+        this->serverDir=serverDir;
+    }
+    void setServerName(string serverName)
+    {
+        this->serverName=serverName;
+    }
+};
 int downloadVersion(downloadOption option);
 
 int download(string URL, string path);
 
 void mkMultiDir(string dir);
+
+int downloadServer(downloadServerOption option);

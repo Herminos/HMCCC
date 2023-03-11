@@ -37,7 +37,7 @@ int downloadVersion(downloadOption option)
     ifstream manifestfile;
     manifestfile.open(manifestPath);
     bool parse_ok=Json::parseFromStream(builder,manifestfile,&root,&errs);
-    cout<<manifestPath<<endl;
+    //cout<<manifestPath<<endl;
     if(!parse_ok)
     {
         cout<<"Open manifest file failed!"<<endl;
@@ -67,7 +67,7 @@ int downloadVersion(downloadOption option)
         cout<<"Version not found!"<<endl;
         return -1;
     }
-    cout<<versionPath<<endl;
+    //cout<<versionPath<<endl;
     Json::Value versionRoot;
     Json::CharReaderBuilder versionBuilder;
     JSONCPP_STRING versionErrs;
@@ -90,8 +90,8 @@ int downloadVersion(downloadOption option)
     {
         string libraryURL=(*it)["downloads"]["artifact"]["url"].asString();
         string libraryPath=option.GameDir+"/libraries/"+(*it)["downloads"]["artifact"]["path"].asString();
-        cout<<libraryPath<<endl;
-        cout<<libraryURL<<endl;
+        // cout<<libraryPath<<endl;
+        // cout<<libraryURL<<endl;
         download(libraryURL,libraryPath);
         if((*it)["downloads"].isMember("classifiers")&&(*it)["downloads"]["classifiers"].isMember("natives-windows"))
         {
@@ -142,6 +142,60 @@ int downloadVersion(downloadOption option)
         download("https://resources.download.minecraft.net/"+assestPrePath,option.GameDir+"/assets/objects/"+assestPrePath);
     }
 
+}
+
+int downloadServer(downloadServerOption option)
+{
+    string manifestURL="https://piston-meta.mojang.com/mc/game/version_manifest.json";
+    string manifestPath=option.serverDir+"/version_manifest.json";
+    download(manifestURL,manifestPath);
+    Json::Value root;
+    Json::CharReaderBuilder builder;
+    JSONCPP_STRING errs;
+    ifstream manifestFile;
+    manifestFile.open(manifestPath);
+    bool parse_ok=Json::parseFromStream(builder,manifestFile,&root,&errs);
+    if(!parse_ok)
+    {
+        cout<<"Open manifest file failed!"<<endl;
+    }
+    manifestFile.close();
+    Json::Value versions=root["versions"];
+    bool found=false;
+    string versionPath;
+    for(Json::Value::iterator it=versions.begin();it!=versions.end();it++)
+    {
+        if((*it)["id"]==option.version)
+        {
+            string versionURL=(*it)["url"].asString();
+            versionPath=option.serverDir+"/"+option.serverName+"/"+option.version+".json";
+            download(versionURL,versionPath);
+            found=true;
+            break;
+        }
+    }
+    if(!found)
+    {
+        cout<<"Version not found!"<<endl;
+        return -1;
+    }
+    Json::Value versionRoot;
+    Json::CharReaderBuilder versionBuilder;
+    JSONCPP_STRING versionErrs;
+    ifstream versionfile;
+    versionfile.open(versionPath);
+    parse_ok=Json::parseFromStream(versionBuilder,versionfile,&versionRoot,&versionErrs);
+    if(!parse_ok)
+    {
+        cout<<"Open version file failed!"<<endl;
+    }
+    versionfile.close();
+    download(versionRoot["downloads"]["server"]["url"].asString(),option.serverDir+"/"+option.serverName+"/"+option.version+".jar");
+    ofstream eulaFile;
+    eulaFile.open(option.serverDir+"/"+option.serverName+"/eula.txt");
+    eulaFile<<"eula=true";
+    eulaFile.close();
+    return 0;
 }
 
 LPCWSTR stringToLPCWSTR(string str)

@@ -8,15 +8,24 @@
 using namespace std;
 int main()
 {
-    downloadOption option;
-    option.GameDir="C:/Users/hermi/Desktop/HMCCC/demo";
+//     downloadOption option;
+//     option.GameDir="C:/Users/hermi/Desktop/HMCCC/demo";
+//     option.version="1.12.2";
+//     option.versionName="Demo";
+//     downloadVersion(option);
+//     system("pause");
+//     launchOption LaunchOption(option);
+//     Account account("Demo","xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx","xxxxx","xxxx","Mojang");
+//     launchGame(LaunchOption,account);
+//     system("pause");
+//     //我也不知道
+    downloadServerOption option;
+    option.serverDir="C:/Users/hermi/Desktop/HMCCC/demoserver";
     option.version="1.12.2";
-    option.versionName="Demo";
-    downloadVersion(option);
+    option.serverName="Demo";
+    downloadServer(option);
     system("pause");
-    launchOption LaunchOption(option);
-    Account account("Demo","xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx","xxxxx","xxxx","Mojang");
-    launchGame(LaunchOption,account);
+    launchServerOption LaunchOption(option);
+    launchServer(LaunchOption);
     system("pause");
-    //我也不知道
 }
