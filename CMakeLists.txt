@@ -4,8 +4,12 @@ project(HMCCC)
 
 aux_source_directory(./src DIR_SRCS)
 
-include_directories(./include)
+find_package(CURL REQUIRED)
 
-add_executable(ConsoleLauncher ${DIR_SRCS})
+find_package(cpprestsdk REQUIRED)
 
-add_library(hmccc ${DIR_SRCS})
+include_directories(./include ${CURL_INCLUDE_DIR})
+
+add_executable(ConsoleLauncher ${DIR_SRCS} )
+
+target_link_libraries(ConsoleLauncher ${CURL_LIBRARIES} cpprestsdk::cpprest)

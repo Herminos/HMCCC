@@ -2,6 +2,7 @@
 #include"../headers/download.h"
 #include"../headers/system.h"
 #include"../headers/launch.h"
+#include"../headers/auth_login.h"
 #include<iostream>
 #include<fstream>
 #include<io.h>
@@ -18,14 +19,16 @@ int main()
 //     Account account("Demo","xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx","xxxxx","xxxx","Mojang");
 //     launchGame(LaunchOption,account);
 //     system("pause");
-//     //我也不知道
-    downloadServerOption option;
-    option.serverDir="C:/Users/hermi/Desktop/HMCCC/demoserver";
-    option.version="1.12.2";
-    option.serverName="Demo";
-    downloadServer(option);
+    // downloadServerOption option;
+    // option.serverDir="C:/Users/hermi/Desktop/HMCCC/demoserver";
+    // option.version="1.12.2";
+    // option.serverName="Demo";
+    // downloadServer(option);
+    // system("pause");
+    // launchServerOption LaunchOption(option);
+    // launchServer(LaunchOption);
+    // system("pause");
+    oathAuthorize();
     system("pause");
-    launchServerOption LaunchOption(option);
-    launchServer(LaunchOption);
-    system("pause");
+    
 }
