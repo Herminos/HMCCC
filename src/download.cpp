@@ -6,10 +6,11 @@
 #include<stdio.h>
 #include<list>
 #include<direct.h>
+#include<curl/curl.h>
 #include"../headers/json/json.h"
 #include"../headers/download.h"
 #include"../headers/system.h"
-#pragma comment(lib,"urlmon.lib")
+//#pragma comment(lib,"urlmon.lib")
 using namespace std;
 int downloadVersion(downloadOption option)
 {
@@ -207,41 +208,40 @@ LPCWSTR stringToLPCWSTR(string str)
     MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, (LPWSTR)wszString, len);
     return (LPCWSTR)wszString;
 }
-
-int download(string URL,string path)
-{
-
-    int length=path.length();
-    string dir;
-    for(int i=length-1;i>=0;i--)
-    {
-        if(path[i]=='/')
-        {
-            dir=path.substr(0,i);
-            break;
-        }
-    }
-    if(_access(dir.c_str(),0)==-1)
-    {
-        mkMultiDir(dir);
-    }
-    HRESULT result;
-    result=URLDownloadToFileW(NULL, stringToLPCWSTR(URL),stringToLPCWSTR(path),0,NULL);
-    if(result==S_OK)
-        return 0;
-    else
-    {
-        cout<<"Download failed!"<<endl;
-        if(result==E_OUTOFMEMORY)
-        {
-            cout<<"Out of memory!"<<endl;
-        }
-        if(result==INET_E_DOWNLOAD_FAILURE)
-        {
-            cout<<"Invaild resource!"<<endl;
-        }
-    }
-}
+// This function uses Windows API which is not cross-platform, so it is no-longer used in this project.
+// int download1(string URL,string path)
+// {
+//     int length=path.length();
+//     string dir;
+//     for(int i=length-1;i>=0;i--)
+//     {
+//         if(path[i]=='/')
+//         {
+//             dir=path.substr(0,i);
+//             break;
+//         }
+//     }
+//     if(_access(dir.c_str(),0)==-1)
+//     {
+//         mkMultiDir(dir);
+//     }
+//     HRESULT result;
+//     result=URLDownloadToFileW(NULL, stringToLPCWSTR(URL),stringToLPCWSTR(path),0,NULL);
+//     if(result==S_OK)
+//         return 0;
+//     else
+//     {
+//         cout<<"Download failed!"<<endl;
+//         if(result==E_OUTOFMEMORY)
+//         {
+//             cout<<"Out of memory!"<<endl;
+//         }
+//         if(result==INET_E_DOWNLOAD_FAILURE)
+//         {
+//             cout<<"Invaild resource!"<<endl;
+//         }
+//     }
+// }
 string GetPathDir(string filePath)
 {
     string dirPath = filePath;
@@ -273,4 +273,66 @@ void mkMultiDir(string dir)
     {       
         _mkdir(it.c_str());
     }
+}
+size_t write_data(void *buffer,size_t size,size_t nmemb,string* writerData)
+{
+    if(writerData==NULL)
+        return 0;
+    writerData->append((char*)buffer,size*nmemb);
+    return size*nmemb;
+}
+//This download function uses libcurl which is cross-platform.
+//And it also supports resuming download.
+int download(string URL,string path)
+{
+    if(URL.empty()||path.empty())
+        return;
+    int length=path.length();
+    string dir;
+    for(int i=length-1;i>=0;i--)
+    {
+        if(path[i]=='/')
+        {
+            dir=path.substr(0,i);
+            break;
+        }
+    }
+    if(_access(dir.c_str(),0)==-1)
+    {
+        mkMultiDir(dir);
+    }
+    size_t curLen=getFileLength(path);
+    unique_ptr<string> writerData=make_unique<string>();
+    CURLcode res;
+    curl_global_init(CURL_GLOBAL_ALL);
+    CURL* handle=curl_easy_init();
+    curl_easy_setopt(handle,CURLOPT_URL,URL.c_str());
+    curl_easy_setopt(handle,CURLOPT_WRITEFUNCTION,write_data);
+    curl_easy_setopt(handle,CURLOPT_WRITEDATA,writerData.get());
+    if(curLen>0)
+    {
+        cout<<"continue download"<<endl;
+        curl_easy_setopt(handle,CURLOPT_RESUME_FROM_LARGE,(curl_off_t)curLen);
+    }
+    res=curl_easy_perform(handle);
+
+    curl_easy_cleanup(handle);
+    curl_global_cleanup();
+    cout<<res<<endl;
+
+    cout<<*writerData<<endl;
+    ofstream file(path);
+    file<<*writerData;
+    file.close();
+    system("pause");
+}
+size_t getFileLength(string path)
+{
+    if(access(path.c_str(),0)==-1)
+        return 0;
+    FILE* fp=fopen(path.c_str(),"rb");
+    fseek(fp,0,SEEK_END);
+    size_t len=ftell(fp);
+    fclose(fp);
+    return len;
 }

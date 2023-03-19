@@ -30,12 +30,10 @@ int main()
 }
 ```
 
-This allows user to download a 1.12.2 Minecraft .
+This allows user to download a 1.12.2 Minecraft and launch it(build passed on Windows 11).
 
 ## Build
 
 ```powershell
 git clone https://github.com/Herminos/HMCCC.git
 ```
-
-

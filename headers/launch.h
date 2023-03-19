@@ -1,5 +1,6 @@
 #pragma once
 #include"download.h"
+#include"account.h"
 
 class Account
 {
@@ -16,6 +17,13 @@ class Account
         this->accessToken=accessToken;
         this->clientToken=clientToken;
         this->userType=userType;
+    }
+    Account(offlineAccount account)
+    {
+        this->userName=account.name;
+        this->uuid=account.uuid;
+        this->accessToken=account.accessToken;
+        this->userType="offline";
     }
 };
 
