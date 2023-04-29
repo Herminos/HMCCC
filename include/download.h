@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DOWNLOAD_H
+#define DOWNLOAD_H
 
 #include <string>
 using namespace std;
@@ -49,3 +50,5 @@ int download(string URL, string path);
 void mkMultiDir(string dir);
 
 int downloadServer(downloadServerOption option);
+
+#endif

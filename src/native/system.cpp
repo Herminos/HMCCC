@@ -3,7 +3,7 @@
 #include<direct.h>
 #include<windows.h>
 #include<stdio.h>
-#include"../headers/system.h"
+#include"../../include/system.h"
 using namespace std;
 
 JavaBinPath getByJREPath()

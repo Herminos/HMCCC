@@ -7,9 +7,9 @@
 #include<list>
 #include<direct.h>
 #include<curl/curl.h>
-#include"../headers/json/json.h"
-#include"../headers/download.h"
-#include"../headers/system.h"
+#include"../../include/json/json.h"
+#include"../../include/download.h"
+#include"../../include/system.h"
 //#pragma comment(lib,"urlmon.lib")
 using namespace std;
 int downloadVersion(downloadOption option)
@@ -281,12 +281,22 @@ size_t write_data(void *buffer,size_t size,size_t nmemb,string* writerData)
     writerData->append((char*)buffer,size*nmemb);
     return size*nmemb;
 }
+size_t getFileLength(string path)
+{
+    if(access(path.c_str(),0)==-1)
+        return 0;
+    FILE* fp=fopen(path.c_str(),"rb");
+    fseek(fp,0,SEEK_END);
+    size_t len=ftell(fp);
+    fclose(fp);
+    return len;
+}
 //This download function uses libcurl which is cross-platform.
 //And it also supports resuming download.
 int download(string URL,string path)
 {
     if(URL.empty()||path.empty())
-        return;
+        return -1;
     int length=path.length();
     string dir;
     for(int i=length-1;i>=0;i--)
@@ -324,15 +334,5 @@ int download(string URL,string path)
     ofstream file(path);
     file<<*writerData;
     file.close();
-    system("pause");
-}
-size_t getFileLength(string path)
-{
-    if(access(path.c_str(),0)==-1)
-        return 0;
-    FILE* fp=fopen(path.c_str(),"rb");
-    fseek(fp,0,SEEK_END);
-    size_t len=ftell(fp);
-    fclose(fp);
-    return len;
+    return 0;
 }

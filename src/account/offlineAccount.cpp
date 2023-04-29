@@ -1,11 +1,11 @@
 #include<iostream>
 #include<string>
-#include"../headers/account.h"
+#include"../../include/account.h"
 #include<boost/uuid/uuid.hpp>
 #include<boost/uuid/uuid_generators.hpp>
 #include<boost/uuid/uuid_io.hpp>
 using namespace std;
-offlineAccount::offlineAccount(string name,int type)
+offlineAccount::offlineAccount(string name,int type=GENERATE_RANDOMLY)
 {
     this->name=name;
     
@@ -22,6 +22,6 @@ offlineAccount::offlineAccount(string name,int type)
     }
     else
     {
-        this->uuid="0";
+        this->uuid="00000000-0000-0000-0000-000000000000";
     }
 }

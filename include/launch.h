@@ -1,33 +1,8 @@
-#pragma once
+#ifndef LAUNCH_H
+#define LAUNCH_H
+
 #include"download.h"
 #include"account.h"
-
-class Account
-{
-    public:
-    string userName;
-    string uuid;
-    string accessToken;
-    string clientToken;
-    string userType;
-    Account(string userName,string uuid,string accessToken,string clientToken,string userType)
-    {
-        this->userName=userName;
-        this->uuid=uuid;
-        this->accessToken=accessToken;
-        this->clientToken=clientToken;
-        this->userType=userType;
-    }
-    Account(offlineAccount account)
-    {
-        this->userName=account.name;
-        this->uuid=account.uuid;
-        this->accessToken=account.accessToken;
-        this->userType="offline";
-    }
-};
-
-
 
 class launchOption
 {
@@ -81,3 +56,5 @@ class launchServerOption
 void launchGame(launchOption option,Account account);
 
 void launchServer(launchServerOption option);
+
+#endif

@@ -1,7 +1,6 @@
 #include<curl/curl.h>
 #include<iostream>
-#include"../headers/json/json.h"
-#include"../headers/oauth_login.h"
+#include"../../include/json/json.h"
 using namespace std;
 class httpRequest
 {
@@ -14,6 +13,7 @@ class httpRequest
         void appendRequestHeader(string header);
         void setRequestHeader();
         int sendRequest();
+        void trustAllCerts();
         string getResponse();
     private:
         CURL *curl;
@@ -77,6 +77,12 @@ int httpRequest::sendRequest()
     }
     return 0;
 }
+
+void httpRequest::trustAllCerts()
+{
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+}
 string httpRequest::getResponse()
 {
     return *readBuffer;
@@ -123,17 +129,19 @@ void setClipBoard(const char* str)
         CloseClipboard();
     }
 }
-codeInfo getDeviceCode(string client_id="6731de76-14a6-49ae-97bc-6eba6914391e")
+codeInfo getDeviceCode(string client_id="9e0bab1e-fbff-43d9-b591-7cfb985d6a4b")
 {
     httpRequest request;
 
     request.setURL("https://login.microsoftonline.com/common/oauth2/v2.0/devicecode");
     request.setRequestType("POST");
-    string httpArgs="client_id="+client_id+"&scope=user.read%20openid%20profile";
+    string httpArgs="client_id="+client_id+"&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL";
     request.setRequestData(httpArgs.c_str());
+    request.trustAllCerts();
 
     request.sendRequest();
     string response=request.getResponse();
+    cout<<"response:"<<response<<endl;
     Json::Value root;
     Json::Reader reader;
     string device_code;
@@ -157,6 +165,11 @@ codeInfo getDeviceCode(string client_id="6731de76-14a6-49ae-97bc-6eba6914391e")
 }
 void authInBrowser(codeInfo info)
 {
+    if(info.user_code.empty())
+    {
+        cerr<<"user_code is empty"<<endl;
+        return;
+    }
     cout<<"A browser will be opened to authenticate your account."<<endl;
     cout<<"Please enter the code to the browser: "<<info.user_code<<endl;
     cout<<"If you don't have a Microsoft account, please create one first."<<endl;
@@ -176,8 +189,10 @@ tokenInfo getToken(codeInfo info)
     httpRequest request;
     request.setURL("https://login.microsoftonline.com/common/oauth2/v2.0/token");
     request.setRequestType("POST");
-    string httpArgs="client_id="+info.client_id+"&scope=user.read%20openid%20profile&code="+info.device_code+"&grant_type=urn:ietf:params:oauth:grant-type:device_code";
+    string httpArgs="grant_type=urn:ietf:params:oauth:grant-type:device_code&client_id="+info.client_id+"&device_code="+info.device_code;
+    cout<<httpArgs<<endl;
     request.setRequestData(httpArgs.c_str());
+    request.trustAllCerts();
     request.sendRequest();
     string response=request.getResponse();
     cout<<"response:"<<response<<endl;
@@ -200,6 +215,29 @@ tokenInfo getToken(codeInfo info)
 }
 
 
+void XBLAuth(tokenInfo info)
+{
+    httpRequest request;
+    request.setURL("https://user.auth.xboxlive.com/user/authenticate");
+    request.setRequestType("POST");
+    Json::Value root;
+    root["Properties"]["AuthMethod"]="RPS";
+    root["Properties"]["SiteName"]="user.auth.xboxlive.com";
+    root["Properties"]["RpsTicket"]=info.access_token;
+    
+    root["RelyingParty"]="http://auth.xboxlive.com";
+    root["TokenType"]="JWT";
+    Json::FastWriter writer;
+    string httpArgs=writer.write(root);
+    cout<<"httpArgs:"<<httpArgs<<endl;
+    request.setRequestData(httpArgs.c_str());
+    request.trustAllCerts();
+    request.sendRequest();
+
+    string response=request.getResponse();
+    cout<<"response:"<<response<<endl;
+}
+
 void OAuth2Login()
 {
     curl_global_init(CURL_GLOBAL_ALL);
@@ -207,5 +245,7 @@ void OAuth2Login()
     authInBrowser(info);
     tokenInfo token=getToken(info);
     cout<<"access_token:"<<token.access_token<<endl;
+    system("pause");
+    XBLAuth(token);
     system("pause");
 }

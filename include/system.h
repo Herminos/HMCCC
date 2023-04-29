@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SYSTEM_H
+#define SYSTEM_H
+
 #include<string>
 using namespace std;
 
@@ -15,3 +17,5 @@ JavaBinPath getByJDKPath();
 string GetCurDir();
 
 int EnterDir(string dir);
+
+#endif
